@@ -1,8 +1,85 @@
 # Into-to-CI
 
-Causal ML: сравнение методов оценки эффекта воздействия
-Учебный проект, показывающий, почему A/B-тесты и наивное сравнение групп дают смещённые оценки при неслучайном назначении воздействия, и как разные методы причинного вывода решают эту проблему.
-Спроектировала синтетический DGP с контролируемым ненаблюдаемым confounder'ом и инструментальной переменной — что позволяет точно измерить bias каждого метода относительно истинного эффекта
-Реализовала и сравнила: propensity score matching, IPW, 2SLS/IV, meta-learners (S/T/X/R-learner), causal tree, causal forest, Double Machine Learning (с Neyman orthogonality и cross-fitting)
-Показала эмпирически, что сложность ML-модели решает проблемы оценивания (переобучение, curse of dimensionality), но не заменяет корректную идентификационную стратегию при нарушенном unconfoundedness
-Стек: Python, pandas, scikit-learn, CatBoost, econml, causalml, doubleml, linearmodels, statsmodels
+**Causal ML: сравнение методов оценки эффекта воздействия**
+
+Учебный проект, показывающий, почему A/B-тесты и наивное сравнение групп дают смещённые оценки при неслучайном назначении воздействия — и как разные методы причинного вывода решают (или не решают) эту проблему.
+
+На примере синтетических данных «эффект высшего образования на зарплату» реализованы и сопоставлены 8 методов оценки причинного эффекта — от классического matching до Double Machine Learning.
+
+---
+
+## Содержание
+
+- [О проекте](#о-проекте)
+- [Методы](#методы)
+- [Результаты](#результаты)
+- [Главный вывод](#главный-вывод)
+- [Как запустить](#как-запустить)
+- [Стек](#стек)
+
+## О проекте
+
+Спроектирован синтетический data generating process (DGP) с контролируемым **ненаблюдаемым confounder'ом** (способности индивида) и **инструментальной переменной** (образование родителей) — это позволяет точно измерить bias каждого метода относительно истинного, заранее известного эффекта, а не гадать о нём на реальных данных.
+
+## Методы
+
+**Классические подходы к причинному выводу:**
+- Propensity Score Matching и Mahalanobis matching
+- Inverse Probability Weighting (IPW)
+- Instrumental Variables (2SLS / Wald estimator)
+
+**Causal ML:**
+- Meta-learners: S-learner, T-learner, X-learner, R-learner
+- Causal Tree (+ honest-подход)
+- Causal Forest
+- Double Machine Learning (Neyman orthogonality + cross-fitting)
+
+## Результаты
+
+| Метод | ATE-оценка | Смещение относительно истинного ATE |
+|---|---|---|
+| Истинный ATE (DGP) | — | — |
+| Naive (разность средних) | | |
+| Matching (Mahalanobis) | | |
+| Matching (PSM) | | |
+| IPW | | |
+| IV (2SLS) | | |
+| S/T/X/R-learner | | |
+| Causal Tree | | |
+| Causal Forest | | |
+| DML | | |
+
+## Главный вывод
+
+Сложность ML-модели внутри метода не заменяет правильную идентификацию. Более гибкая модель (DML, causal forest) решает проблемы *оценивания* — переобучение, curse of dimensionality, смещение из-за регуляризации, — но не проблему *нарушенного unconfoundedness*.
+
+Matching, IPW, meta-learners, causal forest и DML опираются на одну и ту же предпосылку: unconfoundedness относительно наблюдаемых признаков. Ни один из них не видит ненаблюдаемый confounder, поэтому все дают смещённую оценку — хоть и заметно менее смещённую, чем наивное сравнение средних.
+
+IV — единственный метод, использующий другую идентификационную стратегию (relevance / exclusion / independence инструмента вместо unconfoundedness), и именно поэтому даёт оценку, ближе всего к истинному эффекту.
+
+## Как запустить
+
+```bash
+git clone https://github.com/ksbatalova/Intro-to-CI.git
+cd Intro-to-CI
+pip install -r requirements.txt
+jupyter notebook Intro_to_ci.ipynb
+```
+
+`requirements.txt`:
+```
+numpy
+pandas
+scikit-learn
+statsmodels
+catboost
+causalml
+econml
+doubleml
+linearmodels
+matplotlib
+```
+
+## Стек
+
+Python · pandas · scikit-learn · CatBoost · causalml · econml · doubleml · linearmodels · statsmodels
